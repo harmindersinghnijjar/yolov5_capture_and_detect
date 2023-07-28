@@ -10,13 +10,21 @@ def capture_image(timestamp):
     return image_path
 
 def detect_person(image_path, output_path):
-    # Run YOLOv5 detect with the captured image
-    detection_command = f"yolov5 detect --source {image_path}"
-    result = subprocess.run(detection_command, shell=True, capture_output=True, text=True)
+    # Run YOLOv5 detect with the captured image, get the results, and save them to a file and check if a person is detected
+    detect_command = f"python3 detect.py --weights yolov5s.pt --img 640 --conf 0.25 --source {image_path} --save-txt --save-conf --exist-ok --project /home/admin/YOLOv5_Source --name {timestamp}"
+    subprocess.run(detect_command, shell=True)
+    with open(output_path, 'r') as f:
+        detection_results = f.read()
+    if "person" in detection_results:
+        print("Person detected.")
+        # Record video for 30 seconds
+        video_path = record_video(timestamp)
+        print("Video recorded.")
+    else:
+        print("No person detected.")
+        
+   
 
-    # Save the results of inference to a file
-    with open(output_path, "w") as output_file:
-        output_file.write(result.stdout)
     
 
 def record_video(timestamp):
